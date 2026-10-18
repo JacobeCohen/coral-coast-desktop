@@ -198,7 +198,7 @@ tools/       Packaging helper for Lively
 - **Weather:** [Open-Meteo](https://open-meteo.com/).
 - **Search:** [Everything](https://www.voidtools.com/) by voidtools.
 - **Wallpaper engine:** [Lively Wallpaper](https://github.com/rocksdanister/lively) by rocksdanister.
-- **Built by Jacob with help from Claude (Anthropic).**
+- **Built by Jacob with help from Claude (Anthropic) in regards to api integraton with widgets.**
 
 ## License
 
