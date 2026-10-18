@@ -1,0 +1,125 @@
+{
+  "lblLayout": {
+    "type": "label",
+    "value": "Layout"
+  },
+  "screen": {
+    "type": "dropdown",
+    "value": 0,
+    "text": "Which screen is this?",
+    "items": [
+      "Auto (span all three / center)",
+      "Left · System",
+      "Center · Clock & photos",
+      "Right · Music & life"
+    ]
+  },
+  "use24h": {
+    "type": "checkbox",
+    "value": false,
+    "text": "24-hour clock"
+  },
+  "showZones": {
+    "type": "checkbox",
+    "value": false,
+    "text": "Show FancyZones outlines"
+  },
+  "lblPhotos": {
+    "type": "label",
+    "value": "Photo frames (Browse adds a picture to the list)"
+  },
+  "photo1": {
+    "type": "folderDropdown",
+    "value": "",
+    "text": "Photo 1",
+    "filter": "*.jpg|*.jpeg|*.png|*.webp|*.gif|*.bmp",
+    "folder": "photos"
+  },
+  "caption1": {
+    "type": "textbox",
+    "value": "Add a caption",
+    "text": "Caption 1"
+  },
+  "photo2": {
+    "type": "folderDropdown",
+    "value": "",
+    "text": "Photo 2",
+    "filter": "*.jpg|*.jpeg|*.png|*.webp|*.gif|*.bmp",
+    "folder": "photos"
+  },
+  "caption2": {
+    "type": "textbox",
+    "value": "",
+    "text": "Caption 2"
+  },
+  "photo3": {
+    "type": "folderDropdown",
+    "value": "",
+    "text": "Photo 3",
+    "filter": "*.jpg|*.jpeg|*.png|*.webp|*.gif|*.bmp",
+    "folder": "photos"
+  },
+  "caption3": {
+    "type": "textbox",
+    "value": "",
+    "text": "Caption 3"
+  },
+  "lblTodo": {
+    "type": "label",
+    "value": "To-do list"
+  },
+  "todo1": {
+    "type": "textbox",
+    "value": "Set your weather location in Customise",
+    "text": "To-do 1"
+  },
+  "todo2": {
+    "type": "textbox",
+    "value": "Add your photos in Customise",
+    "text": "To-do 2"
+  },
+  "todo3": {
+    "type": "textbox",
+    "value": "Click the pencil to rearrange widgets",
+    "text": "To-do 3"
+  },
+  "todo4": {
+    "type": "textbox",
+    "value": "",
+    "text": "To-do 4"
+  },
+  "todo5": {
+    "type": "textbox",
+    "value": "",
+    "text": "To-do 5"
+  },
+  "lblPlaces": {
+    "type": "label",
+    "value": "Weather and NAS"
+  },
+  "city": {
+    "type": "textbox",
+    "value": "",
+    "text": "Weather city (leave empty to use latitude/longitude)"
+  },
+  "latitude": {
+    "type": "textbox",
+    "value": "21.3069",
+    "text": "Weather latitude"
+  },
+  "longitude": {
+    "type": "textbox",
+    "value": "-157.8583",
+    "text": "Weather longitude"
+  },
+  "nasAddress": {
+    "type": "textbox",
+    "value": "",
+    "text": "NAS address (e.g. 192.168.1.50)"
+  },
+  "tempF": {
+    "type": "checkbox",
+    "value": false,
+    "text": "PC temperatures in °F"
+  }
+}

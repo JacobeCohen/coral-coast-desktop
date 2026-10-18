@@ -1,0 +1,14 @@
+{
+  "AppVersion": "2.0.0.0",
+  "Title": "Coral Coast",
+  "Thumbnail": "thumbnail.jpg",
+  "Preview": "preview.jpg",
+  "Desc": "Triple-monitor dashboard wallpaper: system stats, clock, photos, calendar, music, weather and a to-do list, with movable widgets. Pairs with Coral Launcher.",
+  "Author": "Jacob",
+  "License": "MIT",
+  "Contact": "",
+  "Type": 1,
+  "FileName": "index.html",
+  "Arguments": "--audio --system-information --system-nowplaying",
+  "IsAbsolutePath": false
+}

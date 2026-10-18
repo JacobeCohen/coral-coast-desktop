@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="5760" height="1080" viewBox="0 0 5760 1080">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#EE7A6A"/>
+      <stop offset="0.45" stop-color="#F49A80"/>
+      <stop offset="0.75" stop-color="#F7B892"/>
+      <stop offset="1" stop-color="#F3C79E"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5BB5A0"/>
+      <stop offset="0.5" stop-color="#3A9886"/>
+      <stop offset="1" stop-color="#1D7364"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sky -->
+  <rect x="0" y="0" width="5760" height="860" fill="url(#sky)"/>
+
+  <!-- sun (sits behind the right screen's media ring) -->
+  <circle cx="5570" cy="300" r="110" fill="#FFD9B8" opacity="0.55"/>
+  <circle cx="5570" cy="300" r="150" fill="#FFD9B8" opacity="0.18"/>
+
+  <!-- cloud streaks -->
+  <ellipse cx="900" cy="250" rx="620" ry="16" fill="#FFE6D6" opacity="0.28"/>
+  <ellipse cx="1300" cy="300" rx="380" ry="9" fill="#FFE6D6" opacity="0.22"/>
+  <ellipse cx="2650" cy="230" rx="520" ry="12" fill="#FFE6D6" opacity="0.22"/>
+  <ellipse cx="3350" cy="190" rx="700" ry="16" fill="#FFE6D6" opacity="0.26"/>
+  <ellipse cx="4700" cy="420" rx="520" ry="13" fill="#FFE6D6" opacity="0.22"/>
+  <ellipse cx="5000" cy="470" rx="300" ry="8" fill="#FFE6D6" opacity="0.18"/>
+
+  <!-- far hazy range -->
+  <polygon fill="#E58A77" opacity="0.6" points="0,620 300,560 520,600 760,540 1000,590 1300,520 1600,580 1900,530 2200,600 2500,560 2800,610 3200,540 3600,600 4000,550 4300,590 4600,530 4900,580 5200,540 5500,600 5760,560 5760,830 0,830"/>
+
+  <!-- LEFT SCREEN: rocky hills -->
+  <polygon fill="#6B2E2E" points="0,690 180,640 380,600 560,640 760,700 980,660 1200,590 1380,560 1560,610 1760,700 1920,760 1920,830 0,830"/>
+  <polygon fill="#A9473B" points="0,690 180,640 250,770"/>
+  <polygon fill="#D06B4C" points="180,640 380,600 250,770"/>
+  <polygon fill="#7C3432" points="380,600 520,740 250,770"/>
+  <polygon fill="#B9523F" points="380,600 560,640 520,740"/>
+  <polygon fill="#8F3B34" points="560,640 760,700 520,740"/>
+  <polygon fill="#C45E46" points="760,700 980,660 900,770"/>
+  <polygon fill="#6E2F2F" points="760,700 900,770 520,740"/>
+  <polygon fill="#D9774F" points="980,660 1200,590 1300,720"/>
+  <polygon fill="#93403A" points="980,660 1300,720 900,770"/>
+  <polygon fill="#E58B60" points="1200,590 1380,560 1300,720"/>
+  <polygon fill="#B04838" points="1380,560 1560,610 1300,720"/>
+  <polygon fill="#9A4037" points="1560,610 1760,700 1650,780"/>
+  <polygon fill="#6A2D2E" points="1560,610 1650,780 1300,720"/>
+  <polygon fill="#B9503E" points="1760,700 1920,760 1650,780"/>
+
+  <!-- CENTER SCREEN: the mesa -->
+  <polygon fill="#6B2E2E" points="1920,760 2150,690 2400,600 2600,520 2780,470 2950,395 3060,385 3200,392 3290,470 3420,520 3600,560 3840,600 3840,830 1920,830"/>
+  <polygon fill="#A9443A" points="1920,760 2150,690 2350,760"/>
+  <polygon fill="#C9563F" points="2150,690 2400,600 2350,760"/>
+  <polygon fill="#8E3A33" points="2400,600 2700,700 2350,760"/>
+  <polygon fill="#D46A4B" points="2400,600 2600,520 2700,700"/>
+  <polygon fill="#B84A3B" points="2600,520 2780,470 2850,560"/>
+  <polygon fill="#7E3330" points="2600,520 2850,560 2700,700"/>
+  <polygon fill="#E07A55" points="2780,470 2950,395 2850,560"/>
+  <polygon fill="#CF6146" points="2950,395 3060,385 3100,470"/>
+  <polygon fill="#9B3E36" points="2950,395 3100,470 2850,560"/>
+  <polygon fill="#6E2E2F" points="2850,560 3100,470 3000,640"/>
+  <polygon fill="#A2443A" points="2850,560 3000,640 2700,700"/>
+  <polygon fill="#E58B60" points="3060,385 3200,392 3100,470"/>
+  <polygon fill="#B04838" points="3200,392 3290,470 3100,470"/>
+  <polygon fill="#7A3231" points="3100,470 3290,470 3150,560"/>
+  <polygon fill="#5E2A2C" points="3100,470 3150,560 3000,640"/>
+  <polygon fill="#C25A44" points="3290,470 3420,520 3150,560"/>
+  <polygon fill="#9A4037" points="3420,520 3600,560 3350,700"/>
+  <polygon fill="#6A2D2E" points="3420,520 3350,700 3150,560"/>
+  <polygon fill="#84372F" points="3150,560 3350,700 3000,640"/>
+  <polygon fill="#B9503E" points="3600,560 3840,600 3650,760"/>
+  <polygon fill="#7D3532" points="3600,560 3650,760 3350,700"/>
+
+  <!-- RIGHT SCREEN: lower mesa -->
+  <polygon fill="#6B2E2E" points="3840,600 4050,560 4300,520 4480,535 4700,600 4950,640 5200,610 5450,650 5760,700 5760,830 3840,830"/>
+  <polygon fill="#A8463A" points="3840,600 4050,560 4100,720"/>
+  <polygon fill="#CC6447" points="4050,560 4300,520 4400,660"/>
+  <polygon fill="#7E3532" points="4050,560 4400,660 4100,720"/>
+  <polygon fill="#E3855C" points="4300,520 4480,535 4400,660"/>
+  <polygon fill="#B24A3B" points="4480,535 4700,600 4650,740"/>
+  <polygon fill="#6F2F2F" points="4480,535 4650,740 4400,660"/>
+  <polygon fill="#C25B45" points="4700,600 4950,640 5000,760"/>
+  <polygon fill="#8B3934" points="4700,600 5000,760 4650,740"/>
+  <polygon fill="#D06A4C" points="4950,640 5200,610 5000,760"/>
+  <polygon fill="#A9473B" points="5200,610 5450,650 5400,770"/>
+  <polygon fill="#73302F" points="5200,610 5400,770 5000,760"/>
+  <polygon fill="#B9553F" points="5450,650 5760,700 5400,770"/>
+
+  <!-- sandy shoreline -->
+  <polygon fill="#E8C49A" points="0,800 600,792 1200,808 1920,800 2600,810 3400,798 4200,808 5000,796 5760,806 5760,850 0,850"/>
+  <polygon fill="#D7A97C" points="0,836 900,830 1900,840 2900,832 3900,842 4900,834 5760,840 5760,852 0,852"/>
+
+  <!-- water -->
+  <rect x="0" y="848" width="5760" height="232" fill="url(#water)"/>
+  <polygon fill="#7A3A33" opacity="0.14" points="2150,850 2600,905 3060,965 3500,905 3840,856"/>
+  <polygon fill="#A6E0CF" opacity="0.28" points="300,900 900,895 1200,905 600,910"/>
+  <polygon fill="#A6E0CF" opacity="0.22" points="2300,930 3100,925 3500,935 2700,940"/>
+  <polygon fill="#A6E0CF" opacity="0.22" points="4300,960 5100,955 5300,965 4600,970"/>
+  <polygon fill="#A6E0CF" opacity="0.18" points="1300,1000 1900,996 2100,1004 1500,1008"/>
+
+  <!-- rocks in the water -->
+  <polygon fill="#A8443A" points="2860,892 2920,860 2990,894"/>
+  <polygon fill="#6E2E2F" points="2920,860 2990,894 2950,897"/>
+  <polygon fill="#B9503E" points="880,912 925,888 980,914"/>
+  <polygon fill="#6E2E2F" points="925,888 980,914 945,916"/>
+  <polygon fill="#A8443A" points="4580,902 4640,874 4700,904"/>
+  <polygon fill="#6E2E2F" points="4640,874 4700,904 4665,906"/>
+
+  <!-- birds over the mesa -->
+  <path d="M2600 330 q14 -12 28 0 q14 -12 28 0" fill="none" stroke="#5C2E2E" stroke-width="3" stroke-linecap="round"/>
+  <path d="M2700 380 q11 -9 22 0 q11 -9 22 0" fill="none" stroke="#5C2E2E" stroke-width="3" stroke-linecap="round"/>
+  <path d="M2560 420 q9 -8 18 0 q9 -8 18 0" fill="none" stroke="#5C2E2E" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M2780 300 q8 -7 16 0 q8 -7 16 0" fill="none" stroke="#5C2E2E" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

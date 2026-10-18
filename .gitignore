@@ -1,0 +1,26 @@
+# Personal settings and data - never commit these
+launcher/config.json
+launcher/config.lastgood.json
+launcher/wallpaper-state.json
+launcher/launcher-position.json
+launcher/Coral Launcher.lnk
+launcher/apps/
+*.log
+debug-output.txt
+
+# Your own photos for the wallpaper
+wallpaper/photos/*
+!wallpaper/photos/README.txt
+
+# Build output
+CoralCoast-Lively.zip
+*.zip
+
+# OS clutter
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Corsair iCUE SDK (download it yourself, see README)
+launcher/iCUESDK.x64_2019.dll
+launcher/rgb.json

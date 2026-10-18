@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coral Coast</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+@font-face{font-family:'Sora';src:url('fonts/sora.woff2') format('woff2');font-weight:100 800;}
+@font-face{font-family:'Yellowtail';src:url('fonts/yellowtail.woff2') format('woff2');font-weight:400;}
+@font-face{font-family:'JetBrains Mono';src:url('fonts/jetbrains-mono.woff2') format('woff2');font-weight:100 800;}
+:root{
+  --ink:#3B1F24; --ink-soft:#6B4A44; --cream:#FFF4EA; --cream-hi:#FFF8F0;
+  --teal:#1D7364; --teal-mid:#3A9886; --teal-light:#A6E0CF;
+  --coral:#C24A36; --wine:#7A2630;
+  --card:rgba(250,236,220,0.84); --card-border:rgba(255,248,240,0.7);
+  --track:rgba(59,31,36,0.12);
+  --shadow:0 8px 24px rgba(60,20,20,0.18);
+  --text-shadow:0 2px 12px rgba(90,30,30,0.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#F49A80;}
+body{font-family:'Sora','Segoe UI',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;user-select:none;}
+.mono{font-family:'JetBrains Mono',Consolas,monospace}
+#stage{position:absolute;left:0;top:0;width:5760px;height:1080px;transform-origin:0 0;}
+#bg{position:absolute;left:0;top:0;width:5760px;height:1080px;}
+.screen{position:absolute;top:0;width:1920px;height:1080px;}
+#left{left:0}#center{left:1920px}#right{left:3840px}
+
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:18px;box-shadow:var(--shadow);padding:16px 20px;}
+.label{font-size:12px;font-weight:600;letter-spacing:2px;color:var(--teal);text-transform:uppercase}
+.muted{color:var(--ink-soft)}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.bar{height:8px;border-radius:4px;background:var(--track);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:4px;background:var(--teal);transition:width .8s ease}
+
+/* zone outlines (optional) */
+.zone{position:absolute;border:2px dashed rgba(255,246,236,0.55);border-radius:22px;display:none}
+body.zones .zone{display:block}
+
+/* ---------- LEFT: system ---------- */
+#sys{position:absolute;left:32px;top:32px;width:380px;display:flex;flex-direction:column;gap:12px}
+#sys2{position:absolute;left:428px;top:32px;width:380px;display:flex;flex-direction:column;gap:12px}
+.ring{position:relative;width:132px;height:132px}
+.ring svg{transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:11}
+.ring .t{stroke:var(--track)}
+.ring .v{stroke-linecap:round;transition:stroke-dasharray .8s ease}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .num{font-size:32px;font-weight:300;line-height:1}
+.ring .unit{font-size:11px;color:var(--ink-soft);margin-top:4px;letter-spacing:1px}
+.rings{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 20px}
+.rings>div{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0}
+.ring.sm{width:92px;height:92px}
+.ring.sm circle{stroke-width:8}
+.ring.sm .num{font-size:24px}
+.ring.sm .unit{font-size:10px;margin-top:2px}
+#temps,#drives{display:flex;flex-direction:column;gap:8px}
+.tgauges{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:2px}
+.tg{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.tg .sub{font-size:11px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tchips{display:flex;flex-wrap:wrap;gap:6px}
+.tchips span{font-size:11.5px;padding:2px 8px;border-radius:9px;background:rgba(29,115,100,.09);color:var(--ink)}
+.tchips span b{font-weight:600}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px}
+.dgrid .d{display:flex;align-items:center;gap:7px;font-size:12.5px;min-width:0}
+.dgrid .d i{width:7px;height:7px;border-radius:50%;flex:none}
+.dgrid .d span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dgrid .d b{font-family:'JetBrains Mono',Consolas,monospace;font-weight:500;font-size:12px}
+#temps .note,#drives .note{font-size:12px;color:var(--ink-soft);line-height:1.45}
+.chipname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.legend{display:flex;gap:16px;font-size:12px}
+.legend span::before{content:"";display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle;background:currentColor}
+
+/* ---------- CENTER: clock + frames ---------- */
+#clock{position:absolute;left:120px;top:90px;width:640px;display:flex;flex-direction:column;align-items:center;gap:14px}
+#clock .stack{position:relative;width:640px;height:250px}
+#time{position:absolute;left:0;right:0;top:0;text-align:center;font-size:250px;line-height:250px;font-weight:200;letter-spacing:-6px;color:rgba(255,246,236,0.62)}
+#day{position:absolute;left:0;right:0;top:70px;text-align:center;font-family:'Yellowtail',cursive;font-size:128px;line-height:128px;color:var(--wine);transform:rotate(-6deg)}
+#clock .divider{width:130px;height:3px;border-radius:2px;background:var(--cream)}
+#date{font-size:26px;letter-spacing:3px;color:var(--cream-hi);text-shadow:var(--text-shadow);text-transform:uppercase}
+#wxline{display:flex;align-items:center;gap:14px;color:var(--cream-hi);text-shadow:var(--text-shadow);min-height:40px}
+#wxline .temp{font-size:34px;font-weight:300}
+#wxline .cond{font-size:18px}
+.place{display:flex;align-items:center;gap:5px;font-size:13px;letter-spacing:.5px;color:var(--cream-hi);text-shadow:var(--text-shadow);opacity:.92;margin-top:2px}
+.place.sm{color:var(--ink-soft);text-shadow:none;font-size:12px;letter-spacing:0;margin-top:0}
+.place:empty,.place span:empty{display:none}
+
+#frames{position:absolute;left:870px;top:70px;display:flex;gap:34px;align-items:flex-start}
+figure{margin:0;width:236px;padding:12px 12px 10px;background:#FBF1E6;border-radius:6px;box-shadow:0 14px 30px rgba(60,20,20,0.28)}
+figure .photo{width:212px;height:212px;border-radius:3px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+figure .photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+figure .photo.has img{display:block}
+figure .photo .ph{font-size:13px;color:var(--cream);text-shadow:0 1px 6px rgba(40,20,20,.4);text-align:center;padding:0 16px}
+figure .photo.has .ph,figure .photo.has svg{display:none}
+figcaption{padding-top:10px;font-family:'Yellowtail',cursive;font-size:24px;color:var(--wine);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:34px}
+
+/* ---------- RIGHT: media + life ---------- */
+#viz{position:absolute;left:1560px;top:130px;width:340px;height:340px}
+#viz canvas{position:absolute;inset:0}
+#np{position:absolute;left:58px;right:58px;top:96px;bottom:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;color:var(--cream-hi);text-shadow:0 2px 10px rgba(90,30,30,.45)}
+#np .label{color:var(--cream-hi);font-size:11px}
+#npArt{width:54px;height:54px;border-radius:27px;object-fit:cover;box-shadow:0 4px 14px rgba(60,20,20,.3);display:none;margin-bottom:4px}
+#npTitle{font-size:19px;font-weight:600;line-height:1.2;max-height:46px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#npArtist{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+#life{position:absolute;right:32px;top:500px;width:380px;display:flex;flex-direction:column;gap:12px}
+#life .card{padding:12px 18px}
+.fc{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;text-align:center;font-size:13px;margin-top:10px}
+.fc>div{display:flex;flex-direction:column;gap:3px;align-items:center}
+.todo{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.todo button.item{all:unset;display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer;padding:3px 4px;margin:0 -4px;border-radius:8px}
+.todo button.item:hover{background:rgba(255,248,240,.7)}
+.todo .box{flex:none;width:16px;height:16px;border-radius:5px;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center}
+.todo .done .box{background:var(--teal)}
+.todo .done .box::after{content:"";width:4px;height:8px;border:solid #FFF4EA;border-width:0 2px 2px 0;transform:translate(0,-1px) rotate(45deg)}
+.todo .done .txt{text-decoration:line-through;color:var(--ink-soft);opacity:.7}
+.todo .x{margin-left:auto;opacity:0;font-size:16px;line-height:1;color:var(--ink-soft);padding:0 4px}
+.todo .more{font-size:12.5px;color:var(--ink-soft);padding:2px 0 0 26px}
+.todo button.item:hover .x{opacity:.8}
+#todoAdd{all:unset;display:block;box-sizing:border-box;width:100%;margin-top:6px;font-size:14px;padding:5px 8px;border-radius:8px;background:rgba(255,248,240,.55);border:1px dashed rgba(59,31,36,.25);color:var(--ink)}
+#todoAdd::placeholder{color:var(--ink-soft)}
+.linkbtn{all:unset;font-size:12px;color:var(--ink-soft);cursor:pointer}
+.linkbtn:hover{color:var(--teal);text-decoration:underline}
+/* calendar card (center screen, left of the launcher) */
+#cal{position:absolute;left:40px;top:496px;width:372px;max-height:500px;overflow:hidden;padding:14px 20px 16px}
+#calList{margin-top:4px}
+#calList .day{font-size:11.5px;font-weight:600;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin:12px 0 4px}
+#calList .ev{display:flex;gap:12px;align-items:baseline;font-size:14px;padding:3px 0}
+#calList .ev .t{font-family:'JetBrains Mono',Consolas,monospace;font-size:12px;color:var(--ink-soft);width:66px;flex:none}
+#calList .ev .s{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#calList .ev.now .s{font-weight:600}
+#calList .ev .c{width:8px;height:8px;border-radius:50%;flex:none;align-self:center}
+#calList .note{font-size:13px;color:var(--ink-soft);margin-top:8px;line-height:1.45}
+#cal .seg{display:flex;gap:2px;background:rgba(29,115,100,.09);border-radius:9px;padding:2px}
+#cal .seg button{all:unset;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--ink-soft);padding:3px 9px;border-radius:7px}
+#cal .seg button:hover{color:var(--teal)}
+#cal .seg button.on{background:var(--teal);color:var(--cream-hi)}
+#calList .mhead{display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px;font-size:14px;font-weight:600}
+#calList .mnav{all:unset;cursor:pointer;width:26px;height:26px;border-radius:8px;text-align:center;line-height:24px;font-size:20px;color:var(--teal)}
+#calList .mnav:hover{background:rgba(29,115,100,.1)}
+#calList .mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+#calList .mgrid b{font-size:10.5px;font-weight:600;letter-spacing:1px;color:var(--ink-soft);text-align:center;padding-bottom:2px}
+#calList .md{all:unset;cursor:pointer;position:relative;height:32px;border-radius:8px;text-align:center;font-size:13px;line-height:24px;color:var(--ink)}
+#calList .md:hover{background:rgba(29,115,100,.08)}
+#calList .md.out{color:var(--ink-soft);opacity:.45}
+#calList .md.today{color:var(--teal);font-weight:700;box-shadow:inset 0 0 0 1.5px var(--teal)}
+#calList .md.pick{background:var(--teal);color:var(--cream-hi)}
+#calList .md.pick .dots i{box-shadow:0 0 0 1.5px var(--cream-hi)}
+#calList .md .dots{position:absolute;left:0;right:0;bottom:4px;display:flex;justify-content:center;gap:3px}
+#calList .md .dots i{width:5px;height:5px;border-radius:50%}
+.dot{width:10px;height:10px;border-radius:5px;background:#8A7A76;display:inline-block}
+.dot.on{background:#2FA383;box-shadow:0 0 0 4px rgba(47,163,131,.2)}
+/* movable widgets (layout.js) */
+#w-grid{position:absolute;left:0;top:0;width:5760px;height:1080px;display:none;pointer-events:none;
+  background-image:linear-gradient(rgba(255,246,236,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(255,246,236,.18) 1px,transparent 1px);
+  background-size:20px 20px}
+body.editing #w-grid{display:block}
+body.editing [data-w]{outline:2px dashed rgba(255,246,236,.95);outline-offset:4px;cursor:grab}
+body.editing [data-w] *{pointer-events:none}
+body.editing [data-w]::after{content:attr(data-w-label);position:absolute;right:8px;top:8px;z-index:5;font:600 12px 'Sora',sans-serif;
+  color:#FFF4EA;background:rgba(29,115,100,.92);padding:3px 9px;border-radius:9px;white-space:nowrap}
+[data-w].w-dragging,[data-w].w-carry{z-index:50;cursor:grabbing}
+[data-w].w-carry{box-shadow:0 0 0 3px #1D7364}
+body.editing [data-w].w-blocked{outline-color:#C24A36}
+/* widget boxes (layout.js): uniform cell-sized boxes; the box draws the card, the module sits inside */
+.wbox{position:absolute;box-sizing:border-box}
+.wbox.chrome{background:var(--card);border:1px solid var(--card-border);border-radius:18px;box-shadow:var(--shadow)}
+.wbox > .wmod.card{background:transparent;border-color:transparent;box-shadow:none}
+.wbox.chrome > .wmod{border-radius:18px}
+.w-menu{display:none;position:absolute;left:6px;bottom:6px;width:26px;height:26px;padding:0;border:0;border-radius:8px;z-index:8;cursor:pointer;
+  background:#1D7364;color:#FFF4EA;box-shadow:0 2px 8px rgba(29,115,100,.35);align-items:center;justify-content:center}
+body.editing .w-menu{display:flex}
+body.editing [data-w] .w-menu,body.editing [data-w] .w-resize{pointer-events:auto}
+/* pop-up menus: widget menu, add widget, weather location */
+.w-pop{position:absolute;z-index:90;min-width:230px;max-width:340px;padding:6px;border-radius:14px;background:rgba(255,248,240,.97);
+  border:1px solid rgba(29,115,100,.25);box-shadow:0 14px 40px rgba(60,20,20,.3);font-family:'Sora',sans-serif}
+.w-pop-head{font-size:10.5px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);padding:8px 10px 4px}
+.w-pop-item{all:unset;box-sizing:border-box;display:flex;align-items:baseline;justify-content:space-between;gap:10px;width:100%;padding:7px 10px;border-radius:9px;
+  font-size:13.5px;color:var(--ink);cursor:pointer}
+.w-pop-item small{font-size:11px;color:var(--ink-soft)}
+.w-pop-item:hover:not(:disabled){background:rgba(29,115,100,.1)}
+.w-pop-item.on{color:var(--teal);font-weight:600}
+.w-pop-item.on::before{content:"\2713";margin-right:-4px}
+.w-pop-item.danger{color:#C24A36}
+.w-pop-item:disabled{opacity:.55;cursor:default}
+.place.pick{cursor:pointer;border-radius:8px;padding:1px 6px;margin-left:-6px}
+.place.pick:hover{background:rgba(255,248,240,.25);text-decoration:underline}
+.place.sm.pick:hover{background:rgba(29,115,100,.08)}
+/* resize handle in a widget's bottom-right corner (edit mode only) */
+.w-resize{display:none;position:absolute;right:6px;bottom:6px;width:22px;height:22px;border-radius:7px;z-index:7;cursor:nwse-resize;
+  background:#1D7364 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Cpath d='M7 15l8-8M11 15l4-4' stroke='%23FFF4EA' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/22px no-repeat;
+  box-shadow:0 2px 8px rgba(29,115,100,.35)}
+body.editing .w-resize{display:block}
+body.editing [data-w] .w-resize{pointer-events:auto}
+[data-w].w-resizing{z-index:50}
+/* free-floating widgets (Now playing): a round dotted outline in edit mode */
+/* free widgets: Now playing gets a round outline; photo frames rotate around their centre */
+body.editing .wbox.round{outline-style:dotted;border-radius:50%}
+.wbox.free{transform-origin:50% 50%}
+body.editing .wbox.free:not(.round){outline-style:dotted}
+.w-rot{display:none;position:absolute;left:50%;top:-36px;width:24px;height:24px;margin-left:-12px;border-radius:50%;z-index:8;cursor:grab;
+  background:#1D7364 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FFF4EA' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 8a7 7 0 1 0 1 6'/%3E%3Cpath d='M19 3v5h-5'/%3E%3C/svg%3E") center/16px no-repeat;
+  box-shadow:0 2px 8px rgba(29,115,100,.35)}
+.w-rot::after{content:"";position:absolute;left:11px;top:24px;width:2px;height:12px;background:#1D7364}
+body.editing .w-rot{display:block}
+body.editing [data-w] .w-rot{pointer-events:auto}
+/* photo picker */
+.w-pop-tall{max-height:640px;overflow:auto}
+.w-pop-pick{width:560px;max-width:560px}
+.w-pick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:6px 6px 8px;max-height:520px;overflow:auto}
+.w-pick-grid button{all:unset;cursor:pointer;aspect-ratio:1;border-radius:9px;overflow:hidden;background:rgba(29,115,100,.1);box-shadow:0 0 0 2px transparent}
+.w-pick-grid button:hover{box-shadow:0 0 0 3px #1D7364}
+.w-pick-grid img{width:100%;height:100%;object-fit:cover;display:block}
+.w-pick-note{font-size:12.5px;color:var(--ink-soft);padding:4px 10px 8px;line-height:1.45}
+.w-pick-more{all:unset;display:block;margin:2px auto 6px;padding:6px 14px;border-radius:9px;font-size:13px;color:var(--teal);cursor:pointer;background:rgba(29,115,100,.1)}
+/* stacked widgets: a connector to the widget above (edit mode only) */
+body.editing [data-w].w-linked::before{content:"";position:absolute;left:50%;top:calc(-1 * var(--link-gap,20px) - 4px);
+  width:4px;height:calc(var(--link-gap,20px) + 8px);margin-left:-2px;border-radius:2px;background:#FFF4EA;
+  box-shadow:0 0 0 1.5px #1D7364;z-index:6}
+.w-bar{position:absolute;top:16px;display:flex;gap:8px;align-items:center;z-index:60;white-space:nowrap}
+.w-bar > *{flex:none}
+.w-pencil{width:34px;height:34px;padding:0;border-radius:17px;border:1px solid rgba(255,248,240,.75);background:rgba(250,236,220,.55);
+  color:#3B1F24;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.5}
+.w-pencil:hover{opacity:1}
+body.editing .w-pencil{background:#1D7364;color:#FFF4EA;border-color:#1D7364;opacity:1}
+.w-btn,.w-hint{display:none}
+body.editing .w-btn{display:inline-block;font:600 13px 'Sora',sans-serif;color:#3B1F24;background:rgba(250,236,220,.92);
+  border:1px solid rgba(255,248,240,.8);border-radius:17px;padding:8px 14px;cursor:pointer}
+body.editing .w-done{background:#1D7364;color:#FFF4EA;border-color:#1D7364}
+body.editing .w-hint{display:inline-block;font:13px 'Sora',sans-serif;color:#FFF8F0;text-shadow:0 2px 10px rgba(90,30,30,.5);margin-right:6px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="bg" src="bg.svg" alt="">
+
+  <!-- ================= LEFT 27": System ================= -->
+  <section class="screen" id="left" aria-label="System">
+    <div class="zone" style="left:444px;top:32px;right:32px;bottom:64px"></div>
+    <div id="sys">
+      <div class="card row" style="align-items:center">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span class="label">System</span>
+          <span style="font-size:20px;font-weight:600">Gaming PC</span>
+        </div>
+        <span class="mono muted" style="font-size:13px" id="sysClock">--:--</span>
+      </div>
+
+      <div class="card rings">
+        <div>
+          <div class="ring">
+            <svg width="132" height="132" viewBox="0 0 132 132"><circle class="t" cx="66" cy="66" r="55"/><circle class="v" id="cpuRing" cx="66" cy="66" r="55" stroke="#1D7364" stroke-dasharray="0 346"/></svg>
+            <div class="c"><span class="num" id="cpuPct">--</span><span class="unit">CPU LOAD</span></div>
+          </div>
+          <span class="chipname" id="cpuName">Ryzen 7 5800X3D</span>
+        </div>
+        <div>
+          <div class="ring">
+            <svg width="132" height="132" viewBox="0 0 132 132"><circle class="t" cx="66" cy="66" r="55"/><circle class="v" id="gpuRing" cx="66" cy="66" r="55" stroke="#C24A36" stroke-dasharray="0 346"/></svg>
+            <div class="c"><span class="num" id="gpuPct">--</span><span class="unit">GPU LOAD</span></div>
+          </div>
+          <span class="chipname" id="gpuName">RX 9070 XT</span>
+        </div>
+      </div>
+
+      <div class="card" style="display:flex;flex-direction:column;gap:8px">
+        <div class="row"><span style="font-size:14px;font-weight:600">Memory</span><span class="mono muted" style="font-size:12px" id="ramText">-- / -- GB</span></div>
+        <div class="bar"><i id="ramBar" style="width:0%"></i></div>
+      </div>
+
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <div class="row"><span class="label">Load · last 2 min</span>
+          <span class="legend"><span style="color:#1D7364">CPU</span><span style="color:#C24A36">GPU</span></span></div>
+        <svg width="338" height="90" viewBox="0 0 338 90" aria-hidden="true">
+          <line x1="0" y1="89" x2="338" y2="89" stroke="rgba(59,31,36,.15)"/>
+          <line x1="0" y1="45" x2="338" y2="45" stroke="rgba(59,31,36,.08)" stroke-dasharray="3 5"/>
+          <polyline id="cpuHist" fill="none" stroke="#1D7364" stroke-width="2.2" stroke-linejoin="round" points=""/>
+          <polyline id="gpuHist" fill="none" stroke="#C24A36" stroke-width="2.2" stroke-linejoin="round" points=""/>
+        </svg>
+      </div>
+
+      <div class="card" style="display:flex;flex-direction:column;gap:8px">
+        <div class="row"><span class="label">Network</span><span class="mono muted" style="font-size:12px" id="netText">↓ -- · ↑ --</span></div>
+        <svg width="338" height="54" viewBox="0 0 338 54" aria-hidden="true">
+          <polyline id="netDown" fill="none" stroke="#1D7364" stroke-width="2" stroke-linejoin="round" points=""/>
+          <polyline id="netUp" fill="none" stroke="#C24A36" stroke-width="2" stroke-linejoin="round" points=""/>
+        </svg>
+        <span class="muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="netName"></span>
+      </div>
+      <span id="sysNote" style="font-size:12px;color:var(--cream-hi);text-shadow:var(--text-shadow);padding:0 6px"></span>
+    </div>
+    <div id="sys2">
+      <div class="card" id="temps">
+        <div class="row"><span class="label">Temperatures</span><span class="mono muted" style="font-size:11px" id="tempMax"></span></div>
+        <div class="tgauges"><div class="tg" id="tgCpu"><div class="ring sm"><svg width="92" height="92" viewBox="0 0 92 92"><circle class="t" cx="46" cy="46" r="38"/><circle class="v" cx="46" cy="46" r="38" stroke="#1D7364" stroke-dasharray="0 239" style="opacity:0"/></svg><div class="c"><span class="num">--</span><span class="unit">CPU</span></div></div><span class="sub">&nbsp;</span></div><div class="tg" id="tgGpu"><div class="ring sm"><svg width="92" height="92" viewBox="0 0 92 92"><circle class="t" cx="46" cy="46" r="38"/><circle class="v" cx="46" cy="46" r="38" stroke="#1D7364" stroke-dasharray="0 239" style="opacity:0"/></svg><div class="c"><span class="num">--</span><span class="unit">GPU</span></div></div><span class="sub">&nbsp;</span></div><div class="tg" id="tgRam"><div class="ring sm"><svg width="92" height="92" viewBox="0 0 92 92"><circle class="t" cx="46" cy="46" r="38"/><circle class="v" cx="46" cy="46" r="38" stroke="#1D7364" stroke-dasharray="0 239" style="opacity:0"/></svg><div class="c"><span class="num">--</span><span class="unit">RAM</span></div></div><span class="sub">&nbsp;</span></div></div>
+        <div class="tchips" id="tempChips"></div>
+        <div class="note" id="tempNote">Waiting for temperatures...</div>
+      </div>
+
+      <div class="card" id="drives">
+        <div class="row"><span class="label">Drive temps</span><span class="mono muted" style="font-size:11px" id="driveCount"></span></div>
+        <div class="dgrid" id="driveList"><div class="note">Waiting for temperatures...</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CENTER 24": Hub ================= -->
+  <section class="screen" id="center" aria-label="Hub">
+    <div id="clock">
+      <div class="stack"><span id="time">--:--</span><span id="day"></span></div>
+      <div class="divider"></div>
+      <span id="date"></span>
+      <div id="wxline"><span id="wxIcon"></span><span class="temp" id="wxTemp"></span><span class="cond" id="wxCond"></span></div>
+      <div id="wxPlace" class="place"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span id="wxPlaceName"></span></div>
+    </div>
+
+    <div id="frames" aria-label="Photo frames">
+      <figure style="transform:rotate(-3deg)"><div class="photo" id="ph1" style="background:linear-gradient(160deg,#F7B892 0%,#EE7A6A 55%,#B9503E 100%)">
+        <img alt=""><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFF4EA" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5L5 20"/></svg>
+        <span class="ph">Photo 1<br><span style="font-size:11px;opacity:.85">Add in Lively › Customise</span></span></div>
+        <figcaption id="cap1"></figcaption></figure>
+      <figure style="transform:rotate(2deg);margin-top:14px"><div class="photo" id="ph2" style="background:linear-gradient(160deg,#A6E0CF 0%,#3A9886 55%,#1D7364 100%)">
+        <img alt=""><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFF4EA" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5L5 20"/></svg>
+        <span class="ph">Photo 2</span></div>
+        <figcaption id="cap2"></figcaption></figure>
+      <figure style="transform:rotate(-1.5deg)"><div class="photo" id="ph3" style="background:linear-gradient(160deg,#E8C49A 0%,#D7A97C 50%,#8A5A3C 100%)">
+        <img alt=""><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFF4EA" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5L5 20"/></svg>
+        <span class="ph">Photo 3</span></div>
+        <figcaption id="cap3"></figcaption></figure>
+    </div>
+
+    <div class="card" id="cal" aria-label="Calendar">
+      <div class="row"><span class="label">Calendar</span><div class="seg" id="calSeg"><button type="button" data-v="7">7 days</button><button type="button" data-v="14">14 days</button><button type="button" data-v="month">Month</button></div></div>
+      <div id="calList"><div class="note">Loading your calendar...</div></div>
+    </div>
+  </section>
+
+  <!-- ================= RIGHT 27": Life & media ================= -->
+  <section class="screen" id="right" aria-label="Life and media">
+    <div class="zone" style="left:32px;top:32px;right:444px;bottom:64px"></div>
+    <div id="viz">
+      <canvas id="vizCanvas" width="680" height="680" style="width:340px;height:340px"></canvas>
+      <div id="np">
+        <img id="npArt" alt="">
+        <span class="label">Now playing</span>
+        <span id="npTitle">Nothing playing</span>
+        <span id="npArtist"></span>
+      </div>
+    </div>
+
+    <div id="life">
+      <div class="card">
+        <div class="row"><span style="display:flex;flex-direction:column;gap:3px"><span class="label">Weather</span><span class="place sm"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span id="wxPlaceName2">--</span></span></span>
+          <span style="font-size:14px"><b style="font-size:22px;font-weight:400" id="wxNow">--°</b> <span id="wxNowCond"></span></span></div>
+        <div class="fc" id="fc"></div>
+      </div>
+      <div class="card">
+        <div class="row"><span class="label">To-do</span><button class="linkbtn" id="todoClear" type="button">Clear done</button></div>
+        <div class="todo" id="todo"></div>
+        <input id="todoAdd" type="text" maxlength="60" placeholder="+ Add a task and press Enter" autocomplete="off">
+      </div>
+      <div class="card row" style="align-items:center">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:14px;font-weight:600">Home NAS</span>
+          <span class="muted" style="font-size:12px" id="nasSub">TrueNAS SCALE</span>
+        </div>
+        <span class="muted" style="display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap;flex:none"><span class="dot" id="nasDot"></span><span id="nasState">Not set up</span></span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="calendar.js"></script>
+<script>
+/* ---------------- settings (filled by Lively's Customise panel) ---------------- */
+const S = {
+  screen: 0, use24h: false, showZones: false,
+  latitude: '21.3069', longitude: '-157.8583', place: 'Honolulu',
+  photo1: null, photo2: null, photo3: null,
+  caption1: 'Add a caption', caption2: '', caption3: '',
+  todo1: 'Set your weather location in Customise', todo2: 'Add your photos in Customise', todo3: 'Click the pencil to rearrange widgets', todo4: '', todo5: '',
+  nasAddress: '', city: '', tempF: false
+};
+// weather location picked on the wallpaper ({ name, lat, lon }), or null to use the Customise coordinates
+let wxLoc = (() => { try { return JSON.parse(localStorage.getItem('cc.wxloc')); } catch (e) { return null; } })();
+let inLively = false;
+
+/* ---------------- layout: span all three, or one screen ---------------- */
+const stage = document.getElementById('stage');
+function layout(){
+  const w = window.innerWidth, h = window.innerHeight;
+  const span = w / h > 4;
+  let idx = 1;
+  if (!span) idx = S.screen > 0 ? S.screen - 1 : 1;
+  const scale = span ? w / 5760 : w / 1920;
+  stage.style.transform = `scale(${scale}) translateX(${span ? 0 : -1920 * idx}px)`;
+}
+window.addEventListener('resize', layout);
+
+/* ---------------- clock ---------------- */
+const $ = id => document.getElementById(id);
+function tick(){
+  const d = new Date();
+  let hh = d.getHours(), mm = String(d.getMinutes()).padStart(2, '0');
+  const t = S.use24h ? `${String(hh).padStart(2,'0')}:${mm}` : `${(hh % 12) || 12}:${mm}`;
+  $('time').textContent = t;
+  $('sysClock').textContent = t;
+  $('day').textContent = d.toLocaleDateString('en-US', { weekday: 'long' });
+  $('date').textContent = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+setInterval(tick, 1000); tick();
+
+/* ---------------- weather (Open-Meteo, no key needed) ---------------- */
+const WX = c => c === 0 ? ['Clear','sun'] : c <= 2 ? ['Partly cloudy','partly'] : c === 3 ? ['Overcast','cloud']
+  : c <= 48 ? ['Fog','cloud'] : c <= 57 ? ['Drizzle','rain'] : c <= 67 ? ['Rain','rain'] : c <= 77 ? ['Snow','cloud']
+  : c <= 82 ? ['Showers','rain'] : ['Thunderstorms','storm'];
+const ICON = {
+  sun: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFE0B0" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>',
+  partly: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFE0B0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5V4M3.5 9H2M4.6 5.6l-1-1M12.4 5.6l1-1"/><path d="M5.2 11.2A3.5 3.5 0 1 1 11.6 7.6"/><path d="M8 19h9.5a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.6 1.4A3 3 0 0 0 8 19z"/></svg>',
+  cloud: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFE0B0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10.5a4 4 0 0 0 0-8 6 6 0 0 0-11.4 1.8A3.2 3.2 0 0 0 7 18z"/></svg>',
+  rain: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFE0B0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14h10.5a4 4 0 0 0 0-8 6 6 0 0 0-11.4 1.8A3.2 3.2 0 0 0 7 14z"/><path d="M9 17l-1 3M13 17l-1 3M17 17l-1 3"/></svg>',
+  storm: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFE0B0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14h10.5a4 4 0 0 0 0-8 6 6 0 0 0-11.4 1.8A3.2 3.2 0 0 0 7 14z"/><path d="M12 15l-2 4h3l-2 4"/></svg>'
+};
+/* Where the weather is for: a typed city (Customise > Weather city) is looked up with Open-Meteo's
+   geocoder; otherwise the latitude/longitude are named with BigDataCloud's free reverse lookup. */
+// fetch with a time limit, so a stalled request can't leave the weather stuck
+function fetchT(url, ms = 10000, opt = {}){
+  const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+  return fetch(url, { ...opt, signal: c.signal }).finally(() => clearTimeout(t));
+}
+// report problems to Coral Launcher's log (once per distinct message)
+function wlog(msg){
+  if (wlog.last === msg) return; wlog.last = msg;
+  fetch(SVC + '/log', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: String(msg) }).catch(() => {});
+}
+async function wxPlace(){
+  if (wxLoc && isFinite(wxLoc.lat)) return { lat: wxLoc.lat, lon: wxLoc.lon, name: wxLoc.name };
+  const city = String(S.city || '').trim();
+  const key = city ? 'c:' + city : 'p:' + S.latitude + ',' + S.longitude;
+  if (wxPlace.key === key && wxPlace.val) return wxPlace.val;
+  let v = { lat: S.latitude, lon: S.longitude, name: '' };
+  try {
+    if (city) {
+      const j = await (await fetchT('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name=' + encodeURIComponent(city))).json();
+      const g = j.results && j.results[0];
+      if (g) v = { lat: g.latitude, lon: g.longitude, name: g.name + (g.admin1 ? ', ' + g.admin1 : '') };
+    } else {
+      const j = await (await fetchT(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(S.latitude)}&longitude=${encodeURIComponent(S.longitude)}&localityLanguage=en`)).json();
+      const town = j.city || j.locality || '';
+      const region = (j.principalSubdivisionCode || '').split('-').pop() || j.principalSubdivision || '';
+      if (town) v.name = town + (region ? ', ' + region : '');
+    }
+  } catch (e) {}
+  if (!v.name) v.name = (+v.lat).toFixed(2) + '°, ' + (+v.lon).toFixed(2) + '°';
+  wxPlace.key = key; wxPlace.val = v;
+  return v;
+}
+async function weather(){
+  try {
+    const at = await wxPlace();
+    $('wxPlaceName').textContent = at.name; $('wxPlaceName2').textContent = at.name;
+    const u = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(at.lat)}&longitude=${encodeURIComponent(at.lon)}`
+      + '&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min'
+      + '&temperature_unit=fahrenheit&timezone=auto&forecast_days=5';
+    const r = await fetchT(u, 12000, { cache: 'no-store' });
+    if (!r.ok) throw new Error('Open-Meteo answered ' + r.status);
+    const j = await r.json();
+    wlog.last = null;
+    const [cond, ic] = WX(j.current.weather_code);
+    const t = Math.round(j.current.temperature_2m);
+    $('wxIcon').innerHTML = ICON[ic]; $('wxTemp').textContent = t + '°F'; $('wxCond').textContent = cond;
+    $('wxNow').textContent = t + '°'; $('wxNowCond').textContent = cond;
+    let html = '';
+    for (let i = 1; i <= 4 && i < j.daily.time.length; i++) {
+      const dd = new Date(j.daily.time[i] + 'T12:00:00');
+      html += `<div><span class="muted">${dd.toLocaleDateString('en-US',{weekday:'short'})}</span>`
+        + `<span class="mono">${Math.round(j.daily.temperature_2m_max[i])}°</span>`
+        + `<span class="mono muted" style="font-size:11px">${Math.round(j.daily.temperature_2m_min[i])}°</span></div>`;
+    }
+    $('fc').innerHTML = html;
+  } catch (e) {
+    clearTimeout(weather._retry); weather._retry = setTimeout(weather, 2 * 60 * 1000);   // network not ready yet: try again soon
+    wlog('weather failed: ' + (e && e.name === 'AbortError' ? 'timed out' : (e && e.message) || e) + ' - retrying in 2 minutes');
+    $('wxCond').textContent = 'Weather offline';
+    $('wxNowCond').textContent = 'offline';
+  }
+}
+weather(); setInterval(weather, 30 * 60 * 1000);
+
+/* ---------------- system data (Lively --system-information) ---------------- */
+const hist = { cpu: [], gpu: [], down: [], up: [] };
+const HIST_N = 120;
+function push(a, v){ a.push(v); if (a.length > HIST_N) a.shift(); }
+function pts(a, w, h, max){
+  if (!a.length) return '';
+  const step = w / (HIST_N - 1), off = HIST_N - a.length;
+  return a.map((v, i) => `${((off + i) * step).toFixed(1)},${(h - 2 - Math.min(v / max, 1) * (h - 6)).toFixed(1)}`).join(' ');
+}
+function ring(id, pct){ const c = 2 * Math.PI * 55; $(id).setAttribute('stroke-dasharray', `${(c * Math.min(pct,100) / 100).toFixed(1)} ${c.toFixed(1)}`); }
+function fmtRate(bps){
+  const mbit = bps * 8 / 1e6;
+  return mbit >= 100 ? mbit.toFixed(0) + ' Mb/s' : mbit >= 1 ? mbit.toFixed(1) + ' Mb/s' : (bps * 8 / 1e3).toFixed(0) + ' kb/s';
+}
+function shortName(n, fallback){
+  if (!n) return fallback;
+  return n.replace(/\(R\)|\(TM\)|AMD |Radeon |NVIDIA |GeForce |Processor|\d+-Core|Eight-Core/gi, '').replace(/\s+/g, ' ').trim() || fallback;
+}
+let lastSys = 0;
+function livelySystemInformation(data){
+  inLively = true; lastSys = Date.now();
+  const o = typeof data === 'string' ? JSON.parse(data) : data;
+  applySys(o);
+}
+function applySys(o){
+  const cpu = +o.CurrentCpu || 0, gpu = +o.CurrentGpu3D || 0;
+  $('cpuPct').textContent = Math.round(cpu) + '%'; ring('cpuRing', cpu);
+  $('gpuPct').textContent = Math.round(gpu) + '%'; ring('gpuRing', gpu);
+  if (o.NameCpu) $('cpuName').textContent = shortName(o.NameCpu, 'CPU');
+  if (o.NameGpu) $('gpuName').textContent = shortName(o.NameGpu, 'GPU');
+  const total = +o.TotalRam || 0, avail = +o.CurrentRamAvail || 0;
+  if (total) {
+    const used = total - avail;
+    $('ramText').textContent = `${(used / 1024).toFixed(1)} / ${(total / 1024).toFixed(0)} GB`;
+    $('ramBar').style.width = (used / total * 100).toFixed(1) + '%';
+  }
+  const dn = +o.CurrentNetDown || 0, up = +o.CurrentNetUp || 0;
+  $('netText').textContent = `↓ ${fmtRate(dn)} · ↑ ${fmtRate(up)}`;
+  if (o.NameNetCard) $('netName').textContent = o.NameNetCard;
+  push(hist.cpu, cpu); push(hist.gpu, gpu); push(hist.down, dn); push(hist.up, up);
+  $('cpuHist').setAttribute('points', pts(hist.cpu, 338, 90, 100));
+  $('gpuHist').setAttribute('points', pts(hist.gpu, 338, 90, 100));
+  const nmax = Math.max(64 * 1024, ...hist.down, ...hist.up);
+  $('netDown').setAttribute('points', pts(hist.down, 338, 54, nmax));
+  $('netUp').setAttribute('points', pts(hist.up, 338, 54, nmax));
+}
+
+/* ---------------- now playing (Lively --system-nowplaying) ---------------- */
+function livelyCurrentTrack(data){
+  inLively = true;
+  const o = data ? (typeof data === 'string' ? JSON.parse(data) : data) : null;
+  if (!o || !o.Title) {
+    $('npTitle').textContent = 'Nothing playing'; $('npArtist').textContent = ''; $('npArt').style.display = 'none'; return;
+  }
+  $('npTitle').textContent = o.Title;
+  $('npArtist').textContent = o.Artist || o.AlbumArtist || '';
+  if (o.Thumbnail) { $('npArt').src = 'data:image/png;base64,' + o.Thumbnail; $('npArt').style.display = 'block'; }
+  else $('npArt').style.display = 'none';
+}
+
+/* ---------------- sun-ring visualizer (Lively --audio) ---------------- */
+const TICKS = 60, cv = $('vizCanvas'), cx = cv.getContext('2d');
+const level = new Float32Array(TICKS);
+let target = new Float32Array(TICKS), lastAudio = 0;
+function livelyAudioListener(arr){
+  inLively = true; lastAudio = performance.now();
+  const half = TICKS / 2;
+  for (let i = 0; i < half; i++) {
+    // low frequencies at the top, mirrored left/right; skip the very first bins
+    const a = Math.floor(2 + Math.pow(i / half, 1.6) * 60), b = Math.floor(2 + Math.pow((i + 1) / half, 1.6) * 60) + 1;
+    let m = 0; for (let k = a; k < b && k < arr.length; k++) m = Math.max(m, arr[k] || 0);
+    m = Math.min(1, m * 1.4);
+    target[i] = m; target[TICKS - 1 - i] = m;
+  }
+}
+function draw(t){
+  const silent = performance.now() - lastAudio > 1500;
+  cx.clearRect(0, 0, 680, 680);
+  cx.lineCap = 'round';
+  for (let i = 0; i < TICKS; i++) {
+    const idle = 0.08 + 0.05 * Math.sin(t / 900 + i * 0.6);
+    const tg = silent ? idle : target[i];
+    level[i] += (tg - level[i]) * (tg > level[i] ? 0.45 : 0.12);
+    const a = (i / TICKS) * Math.PI * 2 - Math.PI / 2;
+    const r0 = 244, len = 14 + level[i] * 88;
+    cx.strokeStyle = `rgba(255,244,234,${0.55 + level[i] * 0.45})`;
+    cx.lineWidth = 5;
+    cx.beginPath();
+    cx.moveTo(340 + Math.cos(a) * r0, 340 + Math.sin(a) * r0);
+    cx.lineTo(340 + Math.cos(a) * (r0 + len), 340 + Math.sin(a) * (r0 + len));
+    cx.stroke();
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+/* ---------------- Customise panel (LivelyProperties.json) ---------------- */
+function livelyPropertyListener(name, val){
+  inLively = true;
+  S[name] = val;
+  if (name === 'screen') layout();
+  if (name === 'showZones') document.body.classList.toggle('zones', !!val);
+  if (name === 'use24h') tick();
+  if (name === 'tempF') renderTemps();
+  if (name === 'latitude' || name === 'longitude' || name === 'city') { clearTimeout(weather._t); weather._t = setTimeout(weather, 1500); }
+  if (/^photo\d$/.test(name)) setPhoto(name.slice(-1), val);
+  if (/^caption\d$/.test(name)) $('cap' + name.slice(-1)).textContent = val || '';
+  if (/^(photo|caption)\d$/.test(name) && typeof CoralLayout !== 'undefined') CoralLayout.reapply('photo' + name.slice(-1));
+  if (/^todo\d$/.test(name)) renderTodo();
+  if (name === 'nasAddress') checkNas();
+}
+/* ---------------- photo frames (layout.js boxes) ----------------
+   Photo 1-3 use the pictures chosen in Lively's Customise panel unless one is picked on the wallpaper.
+   Extra frames always pick theirs here. Pictures come from Coral Launcher's photo folders
+   (config.json "photoFolders"); the choice is saved with the layout. */
+const CoralPhotos = {
+  apply(id, el, data){
+    if (!data) return;
+    const img = el.querySelector('img'), box = el.querySelector('.photo'), cap = el.querySelector('figcaption');
+    if (data.src && img && img.dataset.src !== data.src) {
+      img.dataset.src = data.src;
+      img.onload = () => box.classList.add('has');
+      img.onerror = () => box.classList.remove('has');
+      img.src = SVC + '/photo?f=' + encodeURIComponent(data.src);
+    }
+    if (data.caption != null && cap) cap.textContent = data.caption;
+  },
+  restore(id){                                   // Photo 1-3: back to the Customise picture and caption
+    const n = String(id).slice(-1), box = $('ph' + n);
+    if (!box) return;
+    delete box.querySelector('img').dataset.src;
+    setPhoto(n, S['photo' + n]);
+    $('cap' + n).textContent = S['caption' + n] || '';
+  },
+  async pick(id, anchor){
+    let list;
+    try { list = await (await fetchT(SVC + '/photos', 8000)).json(); }
+    catch (e) { CoralLayout.popover(anchor, [{ head: 'Choose a picture' }, { label: 'Start Coral Launcher to browse your pictures', disabled: true }]); return; }
+    const wrap = document.createElement('div');
+    const head = document.createElement('div'); head.className = 'w-pop-head'; head.textContent = 'Choose a picture'; wrap.appendChild(head);
+    const photos = list.photos || [];
+    if (!photos.length) {
+      const n = document.createElement('div'); n.className = 'w-pick-note';
+      n.textContent = 'No pictures found in ' + (list.folders || []).join(', ') + '. Add folders under "photoFolders" in the launcher settings.';
+      wrap.appendChild(n);
+    }
+    const grid = document.createElement('div'); grid.className = 'w-pick-grid'; wrap.appendChild(grid);
+    let shown = 0;
+    const more = document.createElement('button'); more.type = 'button'; more.className = 'w-pick-more';
+    const page = () => {
+      for (const p of photos.slice(shown, shown + 48)) {
+        const b = document.createElement('button'); b.type = 'button'; b.title = p.name;
+        const im = document.createElement('img'); im.loading = 'lazy'; im.alt = ''; im.src = SVC + '/thumb?f=' + encodeURIComponent(p.f);
+        b.appendChild(im);
+        b.addEventListener('click', e => { e.stopPropagation(); CoralLayout.closePop(); CoralLayout.setData(id, { src: p.f }); });
+        grid.appendChild(b);
+      }
+      shown = Math.min(photos.length, shown + 48);
+      more.style.display = shown < photos.length ? '' : 'none';
+      more.textContent = 'Show more (' + (photos.length - shown) + ')';
+    };
+    more.addEventListener('click', e => { e.stopPropagation(); page(); });
+    wrap.appendChild(more);
+    page();
+    CoralLayout.popover(anchor, wrap, 'w-pop-pick');
+  },
+  async caption(id){
+    const t = await askText('PHOTO CAPTION', 'Enter to save  \u00b7  Esc to cancel');
+    if (t === null) return;
+    if (t) CoralLayout.setData(id, { caption: t });
+  }
+};
+function setPhoto(n, rel){
+  const box = $('ph' + n), img = box.querySelector('img');
+  delete img.dataset.src;                      // a picture picked on the wallpaper is re-applied after this
+  if (rel) {
+    img.onload = () => box.classList.add('has');
+    img.onerror = () => box.classList.remove('has');
+    img.src = String(rel).replace(/\\/g, '/');
+  } else { box.classList.remove('has'); img.removeAttribute('src'); }
+}
+/* To-do: Customise items + items added on the wallpaper.
+   Lively doesn't keep browser storage between restarts, so ticks are saved by Coral Launcher
+   (wallpaper-state.json next to the launcher) through its local service. localStorage is only a backup. */
+const SVC = 'http://127.0.0.1:47613';
+function load(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } }
+let tdDone = load('cc.todo.done', []), tdLocal = load('cc.todo.local', []), tdHidden = load('cc.todo.hidden', []);
+let pulled = false, pushTimer = 0, pullTries = 0, dirty = false;
+function save(k, v){
+  try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {}
+  clearTimeout(pushTimer); pushTimer = setTimeout(pushState, 300);
+}
+// Never write to the launcher before its saved copy has been loaded: the page may have started
+// with stale or default data (e.g. the launcher wasn't running yet) and would overwrite the real list.
+function pushState(){
+  if (!pulled) { dirty = true; return; }
+  fetch(SVC + '/state', { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ done: tdDone, local: tdLocal, hidden: tdHidden, calView, wxLoc,
+      layout: (typeof CoralLayout !== 'undefined') ? CoralLayout.get() : undefined, saved: new Date().toISOString() }) })
+    .catch(() => {});
+}
+const union = (a, b) => [...new Set([...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])])];
+function pullState(){
+  fetch(SVC + '/state', { cache: 'no-store' }).then(r => r.text()).then(t => {
+    let s = {};
+    try { s = JSON.parse(t) || {}; } catch (e) { s = {}; }       // empty or damaged file: start fresh
+    pulled = true;
+    if (s.layout && typeof CoralLayout !== 'undefined') CoralLayout.apply(s.layout);
+    if (s.wxLoc !== undefined && JSON.stringify(s.wxLoc) !== JSON.stringify(wxLoc)) { wxLoc = s.wxLoc; wxPlace.key = null; weather(); }
+    if (s.calView && String(s.calView) !== calView) { calView = String(s.calView); calMonth = null; calPick = null; renderCal(); }
+    if (Array.isArray(s.done)) {
+      if (dirty) {                       // changes made while the launcher was down: keep both
+        tdDone = union(s.done, tdDone); tdLocal = union(s.local, tdLocal); tdHidden = union(s.hidden, tdHidden);
+      } else {
+        tdDone = s.done; tdLocal = Array.isArray(s.local) ? s.local : []; tdHidden = Array.isArray(s.hidden) ? s.hidden : [];
+      }
+      renderTodo();
+      if (dirty) pushState();
+    } else if (tdDone.length || tdLocal.length || tdHidden.length || dirty) pushState();   // first run: keep what's here
+    dirty = false;
+  }).catch(() => {                                                   // launcher not running (yet): keep trying
+    setTimeout(pullState, ++pullTries < 90 ? 10000 : 60000);
+  });
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function todoItems(){
+  const fromPanel = [S.todo1, S.todo2, S.todo3, S.todo4, S.todo5].map(x => String(x || '').trim()).filter(x => x && !tdHidden.includes(x));
+  return [...new Set([...fromPanel, ...tdLocal])];
+}
+let todoLimit = Infinity;     // set by layout.js when the to-do's stack would run off the screen
+function renderTodo(){
+  let items = todoItems(), more = 0;
+  if (items.length > todoLimit) {            // keep unfinished tasks in view, fold the rest
+    const open = items.filter(x => !tdDone.includes(x)), done = items.filter(x => tdDone.includes(x));
+    const keep = new Set([...open, ...done].slice(0, todoLimit));
+    more = items.length - keep.size;
+    items = items.filter(x => keep.has(x));
+  }
+  $('todo').innerHTML = (items.length
+    ? items.map(x => `<button type="button" class="item${tdDone.includes(x) ? ' done' : ''}" data-t="${esc(x)}"><span class="box"></span><span class="txt">${esc(x)}</span><span class="x" data-del="1" title="Remove">×</span></button>`).join('')
+    : '<div class="muted" style="font-size:14px">All clear</div>')
+    + (more ? `<div class="more">+${more} more (Clear done to make room)</div>` : '');
+  if (typeof CoralLayout !== 'undefined' && CoralLayout.refit) CoralLayout.refit('todo');
+}
+// layout.js calls fit(overflow): positive = pixels past the bottom of the screen, negative = room to spare
+const CoralTodo = {
+  fit(over){
+    const row = ($('todo').querySelector('button.item') || {}).offsetHeight || 26, step = row + 4;
+    const total = todoItems().length;
+    const shown = Math.min(total, todoLimit);
+    let next = todoLimit;
+    if (over > 0) next = Math.max(1, shown - Math.ceil(over / step) - (todoLimit === Infinity ? 1 : 0));
+    else if (todoLimit !== Infinity && -over >= step) next = shown + Math.floor(-over / step);
+    if (next >= total) next = Infinity;
+    if (next !== todoLimit) { todoLimit = next; renderTodo(); }
+  }
+};
+$('todo').addEventListener('click', e => {
+  const b = e.target.closest('button.item'); if (!b) return;
+  const x = b.dataset.t;
+  if (e.target.dataset.del) removeTodo(x);
+  else { tdDone = tdDone.includes(x) ? tdDone.filter(y => y !== x) : [...tdDone, x]; save('cc.todo.done', tdDone); }
+  renderTodo();
+});
+function removeTodo(x){
+  if (tdLocal.includes(x)) { tdLocal = tdLocal.filter(y => y !== x); save('cc.todo.local', tdLocal); }
+  else { tdHidden = [...tdHidden, x]; save('cc.todo.hidden', tdHidden); }
+  tdDone = tdDone.filter(y => y !== x); save('cc.todo.done', tdDone);
+}
+$('todoClear').addEventListener('click', () => { todoItems().filter(x => tdDone.includes(x)).forEach(removeTodo); renderTodo(); });
+function addTodo(v){
+  v = String(v || '').trim().slice(0, 60); if (!v) return;
+  if (!todoItems().includes(v)) { tdLocal = [...tdLocal, v]; save('cc.todo.local', tdLocal); }
+  tdHidden = tdHidden.filter(y => y !== v); save('cc.todo.hidden', tdHidden);
+  renderTodo();
+}
+$('todoAdd').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  addTodo(e.target.value); e.target.value = '';
+});
+// Lively doesn't reliably pass typing to a wallpaper, so the wallpaper asks Coral Launcher to pop up a
+// small text box by the mouse and collects what was typed. Resolves to the text, '' if cancelled,
+// or null if the launcher isn't running.
+async function askText(title, hint){
+  try {
+    const r = await fetch(SVC + '/ask', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ title, hint }) });
+    if (!r.ok) throw new Error('no launcher');
+  } catch (err) { return null; }
+  const until = Date.now() + 5 * 60 * 1000;
+  while (Date.now() < until) {
+    await new Promise(res => setTimeout(res, 400));
+    try {
+      const r = await fetch(SVC + '/ask', { cache: 'no-store' });
+      if (r.status === 200) return await r.text();
+      if (r.status !== 204) return '';
+    } catch (err) { return ''; }
+  }
+  return '';
+}
+const ADD_HINT = '+ Add a task and press Enter';
+$('todoAdd').addEventListener('mousedown', async e => {
+  if (e.button !== 0 || document.body.classList.contains('editing')) return;
+  e.preventDefault();
+  const box = e.currentTarget;
+  box.placeholder = 'Type your task in the pop-up box...';
+  const t = await askText('ADD A TASK', 'Enter to add  \u00b7  Esc to cancel');
+  box.placeholder = ADD_HINT;
+  if (t === null) { box.focus(); return; }       // launcher not running: type here (needs Lively keyboard input)
+  if (t) addTodo(t);
+});
+
+/* ---------------- weather location picker ----------------
+   Click the place name on either weather widget, type a city, pick the right match. The choice is
+   saved with the to-do state; "Use Customise coordinates" goes back to the latitude/longitude. */
+async function chooseLocation(anchor){
+  if (document.body.classList.contains('editing')) return;
+  const q = await askText('WEATHER LOCATION', 'Type a city, e.g. Miami or Paris, France  \u00b7  Enter to search');
+  if (q === null) { CoralLayout.popover(anchor, [{ head: 'Weather location' }, { label: 'Start Coral Launcher to type a city', disabled: true }]); return; }
+  if (!q.trim()) return;
+  let results = [];
+  try {
+    const j = await (await fetchT('https://geocoding-api.open-meteo.com/v1/search?count=8&language=en&format=json&name=' + encodeURIComponent(q.split(',')[0].trim()))).json();
+    results = j.results || [];
+    const rest = q.split(',').slice(1).join(' ').trim().toLowerCase();         // "Paris, France" -> prefer France
+    if (rest) results.sort((a, b) => (String(b.country + ' ' + b.admin1).toLowerCase().includes(rest) ? 1 : 0) - (String(a.country + ' ' + a.admin1).toLowerCase().includes(rest) ? 1 : 0));
+  } catch (e) {}
+  const items = [{ head: results.length ? 'Pick your location' : 'No places found for "' + q + '"' }];
+  for (const g of results.slice(0, 6)) {
+    const name = g.name + (g.admin1 ? ', ' + g.admin1 : '');
+    items.push({ label: name, sub: g.country_code || g.country || '', onClick: () => setLocation({ name, lat: g.latitude, lon: g.longitude }) });
+  }
+  if (!results.length) items.push({ label: 'Try another name', onClick: () => chooseLocation(anchor) });
+  items.push({ label: 'Use Customise coordinates', sub: S.latitude + ', ' + S.longitude, checked: !wxLoc, onClick: () => setLocation(null) });
+  CoralLayout.popover(anchor, items);
+}
+function setLocation(loc){
+  wxLoc = loc;
+  try { localStorage.setItem('cc.wxloc', JSON.stringify(loc)); } catch (e) {}
+  wxPlace.key = null;
+  clearTimeout(pushTimer); pushTimer = setTimeout(pushState, 300);
+  weather();
+}
+for (const id of ['wxPlace', 'wxPlaceName2']) {
+  const el = id === 'wxPlace' ? $(id) : $(id).parentNode;
+  el.classList.add('pick');
+  el.title = 'Change the weather location';
+  el.addEventListener('click', e => { e.stopPropagation(); chooseLocation(el); });
+}
+
+/* ---------------- NAS reachability ---------------- */
+async function checkNas(){
+  const a = String(S.nasAddress || '').trim();
+  if (!a) { $('nasDot').className = 'dot'; $('nasState').textContent = 'Not set up'; $('nasSub').textContent = 'TrueNAS SCALE'; return; }
+  const url = /^https?:\/\//i.test(a) ? a : 'http://' + a;
+  $('nasSub').textContent = a;
+  const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 4000);
+  try { await fetch(url, { mode: 'no-cors', cache: 'no-store', signal: ctl.signal }); $('nasDot').className = 'dot on'; $('nasState').textContent = 'Online'; }
+  catch (e) { $('nasDot').className = 'dot'; $('nasState').textContent = 'Offline'; }
+  finally { clearTimeout(to); }
+}
+setInterval(checkNas, 60 * 1000);
+
+
+/* ---------------- temperatures (LibreHardwareMonitor via Coral Launcher) ----------------
+   LibreHardwareMonitor's web server (Options > Remote Web Server) serves its sensor tree; the
+   launcher relays it at /sensors. We pick the CPU, GPU, RAM, board and drive temperatures out of it. */
+let lastTemps = null;
+const T_LIMITS = { cpu: [75, 85], gpu: [75, 85], hot: [90, 100], vram: [85, 95], ram: [50, 60], board: [50, 60], drive: [55, 65] };
+function tKind(node){
+  const id = String(node.HardwareId || ''), img = String(node.ImageURL || '');
+  if (/^\/(amdcpu|intelcpu|cpu)/i.test(id)) return 'cpu';
+  if (/^\/gpu/i.test(id) || /(ati|nvidia|intel)\.png$/.test(img)) return 'gpu';
+  if (/^\/(hdd|nvme|ssd|storage)/i.test(id) || /hdd\.png$/.test(img)) return 'drive';
+  if (/^\/(ram|memory|dimm)/i.test(id) || /ram\.png$/.test(img)) return 'ram';
+  if (/^\/(lpc|mainboard|motherboard|superio)/i.test(id) || /(mainboard|chip)\.png$/.test(img)) return 'board';
+  if (/cpu\.png$/.test(img)) return 'cpu';
+  return 'other';
+}
+function tNum(x){
+  if (typeof x === 'number') return isFinite(x) ? x : null;
+  const m = /-?\d+(?:[.,]\d+)?/.exec(String(x ?? ''));
+  return m ? parseFloat(m[0].replace(',', '.')) : null;
+}
+function collectTemps(node, hw, out){
+  if (node.HardwareId) hw = { kind: tKind(node), name: node.Text, id: node.HardwareId };
+  // LibreHardwareMonitor 0.9.6 sends RawValue as text ("44.5 °C"); newer builds send a number
+  const v = tNum(node.RawValue) ?? tNum(node.Value);
+  const isTemp = node.Type === 'Temperature' || /°C|°F/.test(String(node.Value || ''));
+  if (node.SensorId && isTemp && hw && v != null && v > 0 && v < 150 && !/warning|critical|limit|threshold/i.test(node.Text || ''))
+    out.push({ kind: hw.kind, hw: String(hw.name || '').trim(), hwId: hw.id, name: String(node.Text || ''), v, max: tNum(node.RawMax) ?? tNum(node.Max) });
+  for (const c of node.Children || []) collectTemps(c, hw, out);
+  return out;
+}
+const pick = (list, re) => list.find(t => re.test(t.name));
+function summarizeTemps(tree){
+  const all = collectTemps(tree, null, []);
+  const of = k => all.filter(t => t.kind === k);
+  const cpuL = of('cpu'), gpuL = of('gpu'), ramL = of('ram'), boardL = of('board'), driveL = of('drive');
+  const cpu = pick(cpuL, /tctl|tdie|package/i) || pick(cpuL, /core/i) || cpuL.sort((a, b) => b.v - a.v)[0];
+  const gpuMain = gpuL.filter(t => !/gpu-intel/i.test(t.hwId)).length ? gpuL.filter(t => !/gpu-intel/i.test(t.hwId)) : gpuL;
+  const gpu = pick(gpuMain, /^gpu core$/i) || pick(gpuMain, /core|edge/i) || gpuMain[0];
+  const hot = pick(gpuMain, /hot ?spot|junction/i);
+  const vram = pick(gpuMain, /memory|vram/i);
+  const ram = ramL.length ? ramL.reduce((a, b) => (b.v > a.v ? b : a)) : null;
+  const board = pick(boardL, /motherboard|mainboard|system/i) || pick(boardL, /^temperature #2$/i) || boardL.find(t => t.v > 15 && t.v < 90);
+  const drives = [];
+  const byHw = {};
+  for (const t of driveL) (byHw[t.hwId] = byHw[t.hwId] || []).push(t);
+  for (const id in byHw) { const l = byHw[id]; drives.push(pick(l, /composite/i) || pick(l, /^temperature$/i) || l[0]); }
+  return { cpu, gpu, hot, vram, ram, board, drives };
+}
+function fmtT(v){ return S.tempF ? Math.round(v * 9 / 5 + 32) + '°' : Math.round(v) + '°'; }
+function tColor(v, lim){ return v >= lim[1] ? '#C24A36' : v >= lim[0] ? '#D9822B' : '#1D7364'; }
+function setGauge(id, label, t, lim, sub){
+  const g = $(id), arc = g.querySelector('.v');
+  g.querySelector('.unit').textContent = label;
+  arc.style.opacity = t ? 1 : 0;
+  if (!t) { g.querySelector('.num').textContent = '--'; arc.setAttribute('stroke-dasharray', '0 239'); g.querySelector('.sub').textContent = sub || 'no sensor'; return; }
+  g.querySelector('.num').textContent = fmtT(t.v);
+  arc.setAttribute('stroke-dasharray', (Math.min(1, t.v / 100) * 239).toFixed(1) + ' 239');
+  arc.setAttribute('stroke', tColor(t.v, lim));
+  g.querySelector('.sub').textContent = sub || (t.max ? 'max ' + fmtT(t.max) : ' ');
+}
+function shortDrive(n){ return String(n).replace(/^(Samsung SSD|Samsung|WDC|WD_BLACK|WD|KINGSTON|Seagate|ST)\s+/i, '').replace(/\s+(1|2|4)TB$/i, ' $1TB'); }
+function renderTemps(){
+  const x = lastTemps;
+  if (!x) return;
+  $('tempNote').style.display = 'none';
+  setGauge('tgCpu', 'CPU', x.cpu, T_LIMITS.cpu);
+  setGauge('tgGpu', 'GPU', x.gpu, T_LIMITS.gpu, x.hot ? 'hotspot ' + fmtT(x.hot.v) : null);
+  if (x.ram) setGauge('tgRam', 'RAM', x.ram, T_LIMITS.ram);
+  else setGauge('tgRam', 'BOARD', x.board, T_LIMITS.board, x.board ? 'RAM: no sensor' : null);
+  const chips = [];
+  if (x.vram) chips.push(`<span>VRAM <b style="color:${tColor(x.vram.v, T_LIMITS.vram)}">${fmtT(x.vram.v)}</b></span>`);
+  if (x.ram && x.board) chips.push(`<span>Board <b style="color:${tColor(x.board.v, T_LIMITS.board)}">${fmtT(x.board.v)}</b></span>`);
+  if (x.cpu && x.cpu.max) chips.push(`<span>CPU peak <b>${fmtT(x.cpu.max)}</b></span>`);
+  $('tempChips').innerHTML = chips.join('');
+  $('tempMax').textContent = S.tempF ? '°F' : '°C';
+  $('driveCount').textContent = x.drives.length ? x.drives.length + ' drives' : '';
+  $('driveList').innerHTML = x.drives.length
+    ? x.drives.map(d => `<div class="d" title="${esc(d.hw)}"><i style="background:${tColor(d.v, T_LIMITS.drive)}"></i><span>${esc(shortDrive(d.hw))}</span><b>${fmtT(d.v)}</b></div>`).join('')
+    : '<div class="note">No drive temperatures reported.</div>';
+}
+function tempsOffline(msg){
+  for (const id of ['tgCpu', 'tgGpu', 'tgRam']) { const g = $(id); g.querySelector('.v').style.opacity = 0; g.querySelector('.num').textContent = '--'; g.querySelector('.sub').innerHTML = '&nbsp;'; }
+  $('tempNote').style.display = '';
+  $('tempNote').innerHTML = msg;
+  $('driveList').innerHTML = '<div class="note">Needs LibreHardwareMonitor (see Temperatures).</div>';
+}
+async function readSensors(){
+  try {
+    const r = await fetch(SVC + '/sensors', { cache: 'no-store' });
+    if (r.status === 503) { lastTemps = null; tempsOffline('Start <b>LibreHardwareMonitor</b> and turn on <b>Options &rsaquo; Remote Web Server &rsaquo; Run</b> to see temperatures.'); return; }
+    if (!r.ok) throw new Error(r.status);
+    lastTemps = summarizeTemps(await r.json());
+    renderTemps();
+  } catch (e) { if (!lastTemps) tempsOffline('Waiting for Coral Launcher...'); }
+}
+setInterval(readSensors, 2000);
+
+/* ---------------- calendar (Google Calendar via Coral Launcher) ---------------- */
+const CAL_COLORS = ['var(--teal)', 'var(--coral)', 'var(--wine)', 'var(--teal-mid)', '#D9A441', '#6B4A44'];
+const CAL_MAX = { '7': 11, '14': 13 };
+let calView = String(load('cc.cal.view', '7'));        // '7' | '14' | 'month'
+let calText = '', calMulti = false;
+let calMonth = null, calPick = null;                   // month being shown, picked day (ms) in month view
+function calTime(d){ return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).replace(' ', '').toLowerCase(); }
+function startOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function dayLabel(d, today){
+  const diff = Math.round((startOfDay(d) - today) / 864e5);
+  if (diff <= 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  return d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function calNote(msg){ $('calList').innerHTML = `<div class="note">${msg}</div>`; }
+function calRetry(ms){ clearTimeout(calRetry.t); calRetry.t = setTimeout(loadCalendar, ms); }
+function calDot(e){ return calMulti ? `<i class="c" style="background:${CAL_COLORS[(e.cal || 0) % CAL_COLORS.length]}"></i>` : ''; }
+function calRow(e, now){
+  const live = !e.allDay && e.start <= now && e.end > now;
+  return `<div class="ev${live ? ' now' : ''}">${calDot(e)}<span class="t">${e.allDay ? 'all day' : calTime(e.start)}</span><span class="s">${esc(e.summary)}</span></div>`;
+}
+async function loadCalendar(){
+  clearTimeout(calRetry.t);
+  let text;
+  try {
+    const r = await fetch(SVC + '/calendar', { cache: 'no-store' });
+    if (r.status === 404) { calNote('Add your Google Calendar: right-click the launcher bar &rsaquo; Edit settings, and paste its <b>secret address in iCal format</b> into <span class="mono">calendarIcs</span> (use a list for several calendars).'); calRetry(60000); return; }
+    text = await r.text();
+  } catch (e) { calNote('Waiting for Coral Launcher to start...'); calRetry(30000); return; }
+  if (!text || text.indexOf('BEGIN:VCALENDAR') < 0) { calNote('Couldn\'t read the calendar feed. Check the address in the launcher settings.'); calRetry(120000); return; }
+  calText = text;
+  calMulti = (text.match(/BEGIN:VCALENDAR/g) || []).length > 1;
+  renderCal();
+}
+function renderCal(){
+  document.querySelectorAll('#calSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === calView));
+  $('cal').classList.toggle('month', calView === 'month');
+  if (!calText) return;
+  if (calView === 'month') renderMonth(); else renderList(+calView);
+}
+// 7 / 14 days: a list grouped by day
+function renderList(days){
+  const now = new Date(), today = startOfDay(now);
+  const evs = CoralCal.between(calText, today.getTime(), today.getTime() + days * 864e5)
+    .filter(e => e.allDay || e.end > now || e.start > now);
+  if (!evs.length) { calNote(`Nothing on the calendar in the next ${days} days.`); return; }
+  const max = CAL_MAX[days] || 11;
+  let html = '', last = '', shown = 0;
+  for (const e of evs) {
+    if (shown >= max) break;
+    const label = dayLabel(e.start < today ? today : e.start, today);
+    if (label !== last) { html += `<div class="day">${label}</div>`; last = label; }
+    html += calRow(e, now);
+    shown++;
+  }
+  if (evs.length > shown) html += `<div class="note">+${evs.length - shown} more in the next ${days} days</div>`;
+  $('calList').innerHTML = html;
+}
+// month: a grid with a dot per event, and the picked day's events underneath
+function renderMonth(){
+  const now = new Date(), today = startOfDay(now);
+  if (!calMonth) calMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  const first = new Date(y, m, 1), gridStart = new Date(y, m, 1 - first.getDay());
+  const weeks = Math.ceil((first.getDay() + new Date(y, m + 1, 0).getDate()) / 7);
+  const gridEnd = new Date(y, m, 1 - first.getDay() + weeks * 7);
+  const evs = CoralCal.between(calText, gridStart.getTime(), gridEnd.getTime());
+  const isThisMonth = y === today.getFullYear() && m === today.getMonth();
+  if (calPick == null || calPick < first.getTime() || calPick >= new Date(y, m + 1, 1).getTime())
+    calPick = (isThisMonth ? today : first).getTime();
+  const onDay = d0 => { const d1 = d0 + 864e5; return evs.filter(e => e.start.getTime() < d1 && Math.max(e.end.getTime(), e.start.getTime() + 1) > d0); };
+
+  let html = `<div class="mhead"><button type="button" class="mnav" data-step="-1" aria-label="Previous month">&lsaquo;</button>
+    <span>${first.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+    <button type="button" class="mnav" data-step="1" aria-label="Next month">&rsaquo;</button></div><div class="mgrid">`;
+  for (const w of ['S', 'M', 'T', 'W', 'T', 'F', 'S']) html += `<b>${w}</b>`;
+  for (let i = 0; i < weeks * 7; i++) {
+    const d = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i), t = d.getTime();
+    const list = onDay(t);
+    const cls = ['md', d.getMonth() !== m ? 'out' : '', t === today.getTime() ? 'today' : '', t === calPick ? 'pick' : ''].join(' ');
+    const cals = [...new Set(list.map(e => e.cal || 0))].slice(0, 3);
+    const dots = list.length ? `<span class="dots">${(calMulti ? cals : [0]).map(c => `<i style="background:${CAL_COLORS[c % CAL_COLORS.length]}"></i>`).join('')}</span>` : '';
+    html += `<button type="button" class="${cls}" data-t="${t}">${d.getDate()}${dots}</button>`;
+  }
+  html += '</div>';
+  const picked = new Date(calPick), dayEvs = onDay(calPick);
+  html += `<div class="day">${calPick === today.getTime() ? 'Today' : picked.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })}</div>`;
+  if (!dayEvs.length) html += '<div class="note" style="margin-top:2px">Nothing on this day.</div>';
+  else {
+    for (const e of dayEvs.slice(0, 4)) html += calRow(e, now);
+    if (dayEvs.length > 4) html += `<div class="note" style="margin-top:2px">+${dayEvs.length - 4} more</div>`;
+  }
+  $('calList').innerHTML = html;
+}
+// clicks: view switcher, month arrows, picking a day
+$('cal').addEventListener('click', ev => {
+  const b = ev.target.closest('button');
+  if (!b) return;
+  if (b.dataset.v) {
+    calView = b.dataset.v; calMonth = null; calPick = null;
+    save('cc.cal.view', calView);
+  } else if (b.dataset.step) {
+    calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + +b.dataset.step, 1);
+  } else if (b.dataset.t) {
+    calPick = +b.dataset.t;
+    const d = new Date(calPick);
+    if (d.getMonth() !== calMonth.getMonth()) calMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+  } else return;
+  renderCal();
+});
+setInterval(loadCalendar, 10 * 60 * 1000);
+setInterval(() => { if (calText) renderCal(); }, 60 * 1000);    // keeps "now" and the day rollover current
+
+/* ---------------- start-up ---------------- */
+for (const n of [1,2,3]) $('cap' + n).textContent = S['caption' + n] || '';
+renderTodo(); pullState(); loadCalendar(); checkNas(); layout(); readSensors();
+
+// Preview outside Lively (a normal browser): fake data so the layout can be checked.
+setTimeout(() => {
+  if (inLively) return;
+  $('sysNote').textContent = 'Preview mode — live numbers appear inside Lively.';
+  let c = 18, g = 32;
+  setInterval(() => {
+    if (Date.now() - lastSys < 3000) return;
+    c = Math.max(3, Math.min(95, c + (Math.random() - .5) * 12)); g = Math.max(3, Math.min(99, g + (Math.random() - .5) * 16));
+    applySys({ CurrentCpu: c, CurrentGpu3D: g, TotalRam: 32694, CurrentRamAvail: 19800 + Math.random() * 400,
+      CurrentNetDown: 1.2e6 * Math.random(), CurrentNetUp: 1.6e5 * Math.random(),
+      NameCpu: 'AMD Ryzen 7 5800X3D 8-Core Processor', NameGpu: 'AMD Radeon RX 9070 XT', NameNetCard: 'Ethernet' });
+  }, 1000);
+  livelyCurrentTrack(JSON.stringify({ Title: 'Track title', Artist: 'Artist' }));
+  setInterval(() => { const f = new Array(128).fill(0).map((_, i) => Math.random() * (1 - i / 128) * .9); livelyAudioListener(f); }, 50);
+}, 2500);
+</script>
+<script src="layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "launchRoot": "%USERPROFILE%\\Coral Launcher",
+  "categoryOrder": [
+    "Games",
+    "Apps",
+    "Coding",
+    "Creative"
+  ],
+  "pinned": [],
+  "hotkey": "Ctrl+Shift+Space",
+  "bottomMargin": 20,
+  "layer": "desktop",
+  "everything": true,
+  "fileResults": true,
+  "wallpaperPort": 47613,
+  "calendarIcs": [],
+  "startWithWindows": true,
+  "photoFolders": [
+    "%USERPROFILE%\\Pictures"
+  ]
+}
